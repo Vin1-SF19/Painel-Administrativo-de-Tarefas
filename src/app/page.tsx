@@ -1,3 +1,5 @@
+"use client";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,7 +10,6 @@ import {
   List,
   Check,
   CircleAlert,
-  SquarePen,
   Trash,
   ListCheck,
   Sigma,
@@ -18,20 +19,21 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import EditTask from "@/components/edit-task";
+import { getTasks } from "@/actions/get-task-from-db";
+import { useState } from "react";
 const home = () => {
+  const [taskList, setTaskList] = useState([]);
+
+  const handlegetTasks = async () => {
+    const tasks = await getTasks();
+    console.log(tasks);
+  };
   return (
     <main className="w-full h-screen bg-gray-100 flex justify-center items-center">
       <Card className="w-lg">
@@ -43,6 +45,8 @@ const home = () => {
             Cadastrar
           </Button>
         </CardContent>
+
+        <Button onClick={handlegetTasks}>Pesquisar tarefas</Button>
         <CardContent>
           <Separator className="mb-2" />
           <div className="m-2 flex gap-2">
@@ -62,21 +66,7 @@ const home = () => {
               <div className="bg-green-300 w-1 h-full"></div>
               <p className="flex-1 px-2 text-sm">Estudar</p>
               <div className="flex items-center gap-2">
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <SquarePen size={16} className="cursor-pointer" />
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Editar Tarefa</DialogTitle>
-                    </DialogHeader>
-
-                    <div className="flex gap-2">
-                      <Input placeholder="Editar Tarefa" />
-                      <Button className="cursor-pointer">Editar</Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                <EditTask />
                 <Trash size={16} className="cursor-pointer" />
               </div>
             </div>
