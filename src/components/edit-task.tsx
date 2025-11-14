@@ -40,7 +40,7 @@ const EditTask = ({ task, handlegetTasks }: taskProps) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <SquarePen size={16} className="cursor-pointer" />
+        <SquarePen size={16} className="cursor-pointer hover:bg-gray-100" />
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

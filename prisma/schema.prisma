@@ -13,3 +13,11 @@ model Task {
   task String
   done Boolean
 }
+
+model DatedTask {
+  id        String   @id @default(cuid())
+  title     String
+  date      DateTime
+  done      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
