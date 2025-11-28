@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Calendar as CalendarUI } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +19,31 @@ export default function CalendarPage() {
   const [open, setOpen] = useState(false);
   const [taskName, setTaskName] = useState("");
 
+  // TAREFAS QUE VÊM DO BANCO
+  const [tasks, setTasks] = useState<
+    { id: string; task: string; date: string }[]
+  >([]);
+
+  // =============================
+  // 🔥 BUSCAR AS TAREFAS DO BD
+  // =============================
+  async function getCalendarTasks() {
+    try {
+      const res = await fetch("/api/calendar/list");
+      const data = await res.json();
+      setTasks(data);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  useEffect(() => {
+    getCalendarTasks();
+  }, []);
+
+  // =============================
+  // 🔥 QUANDO CLICAR NO CALENDÁRIO
+  // =============================
   function handleSelect(date: Date | undefined) {
     if (!date) return;
 
@@ -34,30 +59,112 @@ export default function CalendarPage() {
     setOpen(true);
   }
 
-  function handleAddTask() {
+  // =============================
+  // 🔥 SALVAR ATIVIDADE
+  // =============================
+  async function handleAddTask() {
     if (!taskName.trim()) {
       toast.error("Digite uma atividade!");
       return;
     }
 
-    const dataFormatada = selectedDate?.toLocaleDateString("pt-BR");
+    try {
+      const res = await fetch("/api/calendar/add", {
+        method: "POST",
+        body: JSON.stringify({
+          taskName,
+          date: selectedDate?.toISOString(),
+        }),
+      });
 
-    toast.success(`Atividade adicionada para ${dataFormatada}`);
+      if (!res.ok) {
+        toast.error("Erro ao salvar no banco!");
+        return;
+      }
 
-    setTaskName("");
-    setOpen(false);
+      toast.success(
+        `Atividade adicionada para ${selectedDate?.toLocaleDateString("pt-BR")}`
+      );
+
+      setTaskName("");
+      setOpen(false);
+      getCalendarTasks(); // atualizar tabela e cores
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro inesperado.");
+    }
   }
 
-  return (
-    <div className="w-full h-full flex items-center justify-center p-10">
-      <CalendarUI
-        mode="single"
-        selected={selectedDate}
-        onSelect={handleSelect}
-        className="rounded-md border shadow-lg p-6 scale-[1.3]"
-        captionLayout="dropdown"
-      />
+  // =============================
+  // 🔥 MODIFIERS (CORES NO CALENDÁRIO)
+  // =============================
 
+  const modifiers = {
+    hasOne: (date: Date) =>
+      tasks.filter(
+        (t) => new Date(t.date).toDateString() === date.toDateString()
+      ).length === 1,
+
+    hasMany: (date: Date) =>
+      tasks.filter(
+        (t) => new Date(t.date).toDateString() === date.toDateString()
+      ).length >= 2,
+  };
+
+  const classNames = {
+    day_hasOne: "bg-orange-300 text-black rounded-md font-bold",
+    day_hasMany: "bg-red-300 text-black rounded-md font-bold",
+  };
+
+  // =============================
+  // 🔥 LAYOUT
+  // =============================
+  return (
+    <div className="w-full h-full flex p-6 gap-6">
+      {/* CALENDÁRIO - ocupa todo o espaço */}
+      <div className="flex-1 flex justify-center items-center">
+        <CalendarUI
+          mode="single"
+          selected={selectedDate}
+          onSelect={handleSelect}
+          className="rounded-md border shadow-lg p-6 w-[600px] max-w-full"
+          captionLayout="dropdown"
+          modifiers={modifiers}
+          classNames={classNames}
+        />
+      </div>
+
+      {/* PAINEL À DIREITA */}
+      <div className="w-64 border rounded-lg shadow p-4 bg-white h-fit">
+        <h2 className="text-lg font-semibold mb-3">Todas atividades</h2>
+
+        {tasks.length === 0 && (
+          <p className="text-xs text-gray-500">Nenhuma atividade cadastrada</p>
+        )}
+
+        <ul className="flex flex-col gap-2 text-sm">
+          {tasks
+            .sort(
+              (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+            )
+            .map((t) => {
+              const d = new Date(t.date);
+              const dataBR = d.toLocaleDateString("pt-BR");
+
+              return (
+                <li
+                  key={t.id}
+                  className="p-2 border rounded bg-gray-100 text-gray-800"
+                >
+                  Tarefa para o dia <b>{dataBR}</b>:<br />
+                  {t.task}
+                </li>
+              );
+            })}
+        </ul>
+      </div>
+
+      {/* MODAL DE ADICIONAR TAREFA */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>

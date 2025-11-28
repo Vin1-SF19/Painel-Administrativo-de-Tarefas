@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -9,15 +8,10 @@ datasource db {
 }
 
 model Task {
-  id   String  @id @default(cuid())
-  task String
-  done Boolean
-}
-
-model DatedTask {
-  id        String   @id @default(cuid())
-  title     String
-  date      DateTime
-  done      Boolean  @default(false)
-  createdAt DateTime @default(now())
+  id        String    @id @default(cuid())
+  task      String
+  done      Boolean
+  title     String?
+  date      DateTime?
+  createdAt DateTime  @default(now())
 }
