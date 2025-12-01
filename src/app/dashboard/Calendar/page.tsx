@@ -24,9 +24,7 @@ export default function CalendarPage() {
     { id: string; task: string; date: string }[]
   >([]);
 
-  // =============================
-  // 🔥 BUSCAR AS TAREFAS DO BD
-  // =============================
+  //  BUSCAR AS TAREFAS DO BD
   async function getCalendarTasks() {
     try {
       const res = await fetch("/api/calendar/list");
@@ -41,9 +39,7 @@ export default function CalendarPage() {
     getCalendarTasks();
   }, []);
 
-  // =============================
-  // 🔥 QUANDO CLICAR NO CALENDÁRIO
-  // =============================
+  //  QUANDO CLICAR NO CALENDÁRIO
   function handleSelect(date: Date | undefined) {
     if (!date) return;
 
@@ -59,9 +55,7 @@ export default function CalendarPage() {
     setOpen(true);
   }
 
-  // =============================
-  // 🔥 SALVAR ATIVIDADE
-  // =============================
+  //  SALVAR ATIVIDADE
   async function handleAddTask() {
     if (!taskName.trim()) {
       toast.error("Digite uma atividade!");
@@ -88,17 +82,14 @@ export default function CalendarPage() {
 
       setTaskName("");
       setOpen(false);
-      getCalendarTasks(); // atualizar tabela e cores
+      getCalendarTasks(); 
     } catch (error) {
       console.error(error);
       toast.error("Erro inesperado.");
     }
   }
 
-  // =============================
-  // 🔥 MODIFIERS (CORES NO CALENDÁRIO)
-  // =============================
-
+  // nao ta funcional pois o  shadcn não aceita modifiersStyles
   const modifiers = {
     hasOne: (date: Date) =>
       tasks.filter(
@@ -116,12 +107,10 @@ export default function CalendarPage() {
     day_hasMany: "bg-red-300 text-black rounded-md font-bold",
   };
 
-  // =============================
-  // 🔥 LAYOUT
-  // =============================
+  //  LAYOUT
   return (
     <div className="w-full h-full flex p-6 gap-6">
-      {/* CALENDÁRIO - ocupa todo o espaço */}
+      
       <div className="flex-1 flex justify-center items-center">
         <CalendarUI
           mode="single"
@@ -134,7 +123,6 @@ export default function CalendarPage() {
         />
       </div>
 
-      {/* PAINEL À DIREITA */}
       <div className="w-64 border rounded-lg shadow p-4 bg-white h-fit">
         <h2 className="text-lg font-semibold mb-3">Todas atividades</h2>
 
@@ -164,7 +152,7 @@ export default function CalendarPage() {
         </ul>
       </div>
 
-      {/* MODAL DE ADICIONAR TAREFA */}
+      {/* MODAL */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
